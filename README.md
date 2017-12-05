@@ -2,16 +2,16 @@
 
 pigpen是一个轻量级前端单页应用架构。适用于层级关系较简单，页面量较少的小型项目。[bagazhu.com](http://www.bagazhu.com)基于此框架构建。
 
-当前结构为pigpen的vue版本，浏览器支持情况以vue为准。
+您现在看到的为pigpen的vue版本，浏览器支持情况以vue为准。
 
 详情文档请移步[pigpen](https://github.com/xiek881028/pigpen)查看。本文档只简单介绍差异部分。
 
 ## 差异说明
 
-由于pigpen被设计为单页应用框架，所以整个项目针对单页应用做了优化。如果无需单页应用，请根据pigpen的jquery版配置进行部分调整。
+由于pigpen（vue版）被设计为单页应用框架，所以整个项目针对单页应用做了优化。如果无需单页应用，请根据pigpen的jquery版配置进行部分调整。
 
-- webpack配置针对单页应用做了简化，只支持单页面编译。
-- 自定义shell调整为不再生成css和html文件，js文件生成位置改为src/js/components下，后缀改为.vue。
+- webpack配置针对单页应用做了简化，删除单页应用不需要的冗余代码，只支持单页面编译。
+- 自定义shell调整为不再生成css和html文件，js文件生成位置改为src/js/components下，后缀名改为.vue。
 - package.json删除了jquery相关包，引入了vue相关包。
 - layout.pug整合入index.pug，index作为项目基础页面。
 
