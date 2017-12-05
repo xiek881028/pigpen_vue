@@ -1,6 +1,6 @@
-# pigpen
+# pigpen（vue）
 
-pigpen是一个轻量级前端单页应用架构。适用于层级关系较简单，页面量较少的小型项目。[bagazhu.com](http://www.bagazhu.com)基于此框架构建。
+pigpen（vue）是一个轻量级前端单页应用架构。适用于层级关系较简单，页面量较少的小型项目。[bagazhu.com](http://www.bagazhu.com)基于此框架构建。
 
 您现在看到的为pigpen的vue版本，浏览器支持情况以vue为准。
 
