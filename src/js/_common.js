@@ -8,9 +8,9 @@
 // Css
 import '../css/_common.scss';
 
-import components from './components';
+import pages from './pages';
 
 new Vue({
 	el:'#app',
-	router: components,
+	router: pages,
 });

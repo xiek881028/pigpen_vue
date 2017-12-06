@@ -93,7 +93,7 @@ if(argv.add){
 			if(same){
 				console.error(`错误: ${name} 页面已存在!`);
 			}else{
-				fs.writeFile(path.resolve(__dirname, 'src/js/components', `${name}.vue`),
+				fs.writeFile(path.resolve(__dirname, 'src/js/pages', `${name}.vue`),
 					`/*!\n* ${name}\n* create: ${today}\n* since: 0.0.1\n*/\n\n<template lang="pug">\n</template>\n\n<script>\n</script>\n\n<style lang="scss" scoped>\n</style>\n`,
 					(err)=>{
 						if(err) throw err;
@@ -110,7 +110,7 @@ if(argv.del){
 		console.error(`错误: 页面名称不能为空!`);
 	}else{
 		argv.name.split(',').map((name)=>{
-			publicFn.fileTree(path.resolve(__dirname, 'src/js/components')).map((item)=>{
+			publicFn.fileTree(path.resolve(__dirname, 'src/js/pages')).map((item)=>{
 				if(name == path.parse(item).name){
 					fs.unlink(item, (err)=>{
 						if(err) throw err;
