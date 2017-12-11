@@ -38,6 +38,8 @@ class WebpackConfig {
 		return {
 			path: path.resolve(__dirname, 'dist/js'),
 			filename: `[name]${this.min}.js`,
+			chunkFilename: 'chunk[id].js',
+			publicPath: "js/",
 		};
 	}
 
@@ -54,16 +56,16 @@ class WebpackConfig {
 						fallback: 'style-loader',
 						use: [
 							'css-loader?sourceMap',
-							//不需要CSS Sprite功能 解开下面注释 同时注释'postcss-loader?sourceMap'
-							// {
-							// 	loader: 'postcss-loader',
-							// 	options: {
-							// 		plugins: [
-							// 			require('autoprefixer')(),
-							// 		],
-							// 		sourceMap: true,
-							// 	},
-							// },
+					// 		//不需要CSS Sprite功能 解开下面注释 同时注释'postcss-loader?sourceMap'
+					// 		// {
+					// 		// 	loader: 'postcss-loader',
+					// 		// 	options: {
+					// 		// 		plugins: [
+					// 		// 			require('autoprefixer')(),
+					// 		// 		],
+					// 		// 		sourceMap: true,
+					// 		// 	},
+					// 		// },
 							'postcss-loader?sourceMap',
 							'sass-loader?sourceMap',
 						],
@@ -87,7 +89,7 @@ class WebpackConfig {
 					],
 				},
 				{
-					test: /\.(ttc|ttf|woff)(\?.*)?$/,
+					test: /\.(ttc|ttf|woff|eot|svg|woff2)(\?.*)?$/,
 					use: [
 						{
 							loader: 'url-loader',
@@ -105,14 +107,20 @@ class WebpackConfig {
 							loader: 'vue-loader',
 							options: {
 								loaders: {
-									scss: webpackExtractTextPlugin.extract({
-										// fallback: 'vue-style-loader',
-										use: [
-											'css-loader?sourceMap',
-											'postcss-loader?sourceMap',
-											'sass-loader?sourceMap',
-										],
-									}),
+									// scss: webpackExtractTextPlugin.extract({
+									// 	// fallback: 'vue-style-loader',
+									// 	use: [
+									// 		'css-loader?sourceMap',
+									// 		'postcss-loader?sourceMap',
+									// 		'sass-loader?sourceMap',
+									// 	],
+									// }),
+									use: [
+										'style-loader',
+										'css-loader?sourceMap',
+										'postcss-loader?sourceMap',
+										'sass-loader?sourceMap',
+									]
 								},
 							},
 						},
