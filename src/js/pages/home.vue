@@ -5,17 +5,23 @@
 */
 
 <template lang="pug">
-	.box
+	div(is="layout")
 		h1 hello world!
-		router-link(to="/home_cn") go中文版
+		router-link(to="/home_cn") 点我去中文版
 		i by bagazhu
 </template>
 
 <script>
+import layout from './components/layout.vue';
+export default{
+	components: {
+		layout,
+	},
+}
 </script>
 
 <style lang="scss" scoped>
 h1{
-	color: #ada;
+	color: #0ff;
 }
 </style>
