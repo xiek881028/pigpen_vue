@@ -2,12 +2,14 @@
  * shell
  * xiekai <xk285985285@.qq.com>
  * create: 2017/11/30
- * since: 0.0.1
+ * update: 2017/12/11
+ * since: 0.0.2
  */
 'use strict';
 
 const path = require('path');
 const fs = require('fs');
+const _fs = require('fs.extra');
 const rmdir = require('rmdir');
 const dateFormat = require('cainfoharbor-utils/dateFormat');
 const publicFn = require('./publicFn.js');
@@ -46,36 +48,26 @@ if(argv.init){
 		fs.mkdirSync(assetsPath);
 		Object.keys(assets).map((item)=>{
 			!fs.existsSync(path.resolve(assetsPath, item)) && fs.mkdirSync(path.resolve(assetsPath, item));
-			if(publicFn.isArray(assets[item].js)){
-				fs.mkdirSync(path.resolve(assetsPath, item, 'js'));
-				assets[item].js.map((_item)=>{
-					fs.copyFile(path.resolve(__dirname, 'node_modules', item, _item), path.resolve(assetsPath, item, 'js', path.parse(_item).base), (err)=>{
-						if(err) throw err;
-						console.log(`完成导入 ${_item}\n`);
+			Object.keys(assets[item]).map((_item)=>{
+				let _asset = assets[item][_item];
+				if(publicFn.isArray(_asset)){
+					fs.mkdirSync(path.resolve(assetsPath, item, _item));
+					_asset.map((__item)=>{
+						let isDirectory = fs.statSync(path.resolve(__dirname, 'node_modules', item, __item)).isDirectory();
+						_fs[isDirectory? 'copyRecursive' : 'copy'](path.resolve(__dirname, 'node_modules', item, __item), path.resolve(assetsPath, item, _item, isDirectory? '' : path.parse(__item).base), (err)=>{
+							if(err) throw err;
+							console.log(`完成导入 ${item}/${_item} -> ${__item}`);
+						});
 					});
-				});
-			}else if(typeof(assets[item].js) == 'string'){
-				fs.mkdirSync(path.resolve(assetsPath, item, 'js'));
-				fs.copyFile(path.resolve(__dirname, 'node_modules', item, assets[item].js), path.resolve(assetsPath, item, 'js', path.parse(assets[item].js).base), (err)=>{
-					if(err) throw err;
-					console.log(`完成导入 ${assets[item].js}\n`);
-				});
-			};
-			if(publicFn.isArray(assets[item].css)){
-				fs.mkdirSync(path.resolve(assetsPath, item, 'css'));
-				assets[item].css.map((_item)=>{
-					fs.copyFile(path.resolve(__dirname, 'node_modules', item, _item), path.resolve(assetsPath, item, 'css', path.parse(_item).base), (err)=>{
+				}else if(typeof(_asset) == 'string'){
+					fs.mkdirSync(path.resolve(assetsPath, item, _item));
+					let isDirectory = fs.statSync(path.resolve(__dirname, 'node_modules', item, _asset)).isDirectory();
+					_fs[isDirectory? 'copyRecursive' : 'copy'](path.resolve(__dirname, 'node_modules', item, _asset), path.resolve(assetsPath, item, _item, isDirectory? '' : path.parse(_asset).base), (err)=>{
 						if(err) throw err;
-						console.log(`完成导入 ${_item}\n`);
+						console.log(`完成导入 ${item}/${_item} -> ${_asset}`);
 					});
-				});
-			}else if(typeof(assets[item].css) == 'string'){
-				fs.mkdirSync(path.resolve(assetsPath, item, 'css'));
-				fs.copyFile(path.resolve(__dirname, 'node_modules', item, assets[item].css), path.resolve(assetsPath, item, 'css', path.parse(assets[item].css).base), (err)=>{
-					if(err) throw err;
-					console.log(`完成导入 ${assets[item].css}\n`);
-				});
-			};
+				};
+			});
 		});
 	};
 }
