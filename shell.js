@@ -9,7 +9,7 @@
 
 const path = require('path');
 const fs = require('fs');
-const _fs = require('fs-extra');
+const _fs = require('fs.extra');
 const rmdir = require('rmdir');
 const dateFormat = require('cainfoharbor-utils/dateFormat');
 const publicFn = require('./publicFn.js');
