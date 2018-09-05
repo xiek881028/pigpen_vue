@@ -11,25 +11,25 @@ const path = require('path');
 module.exports = {
 	plugins: [
 		require('autoprefixer'),
-		// require('postcss-sprites')({
-		// 	retina: true,
-		// 	spritePath: './src/images/',
-		// 	filterBy(image) {
-		// 		let reg = new RegExp(`\\${path.sep}images\\${path.sep}([^\\${path.sep}]+)\\${path.sep}[^\\${path.sep}]+\.[^\\${path.sep}]+$`, "i");
-		// 		let group = reg.exec(image.path);
-		// 		return Promise[group ? 'resolve' : 'reject']();
-		// 	},
-		// 	groupBy(image) {
-		// 		let reg = new RegExp(`\\${path.sep}images\\${path.sep}([^\\${path.sep}]+)\\${path.sep}[^\\${path.sep}]+\.[^\\${path.sep}]+$`, "i");
-		// 		let group = reg.exec(image.path);
+		require('postcss-sprites')({
+			retina: true,
+			spritePath: './src/images/',
+			filterBy(image) {
+				let reg = new RegExp(`\\${path.sep}images\\${path.sep}([^\\${path.sep}]+)\\${path.sep}[^\\${path.sep}]+\.[^\\${path.sep}]+$`, "i");
+				let group = reg.exec(image.path);
+				return Promise[group ? 'resolve' : 'reject']();
+			},
+			groupBy(image) {
+				let reg = new RegExp(`\\${path.sep}images\\${path.sep}([^\\${path.sep}]+)\\${path.sep}[^\\${path.sep}]+\.[^\\${path.sep}]+$`, "i");
+				let group = reg.exec(image.path);
 
-		// 		return group ? Promise.resolve(group[1]) : Promise.reject();
-		// 	},
-		// 	hooks: {
-		// 		onSaveSpritesheet(opts, spritesheet) {
-		// 			return path.join(opts.spritePath, `${spritesheet.groups.reverse().join('')}.${spritesheet.extension}`);
-		// 		},
-		// 	},
-		// }),
+				return group ? Promise.resolve(group[1]) : Promise.reject();
+			},
+			hooks: {
+				onSaveSpritesheet(opts, spritesheet) {
+					return path.join(opts.spritePath, `${spritesheet.groups.reverse().join('')}.${spritesheet.extension}`);
+				},
+			},
+		}),
 	],
 };
