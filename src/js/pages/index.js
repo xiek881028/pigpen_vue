@@ -1,5 +1,5 @@
-const home = resolve => require(['./home.vue'], resolve);
-const home_cn = resolve => require(['./home_cn.vue'], resolve);
+const home = () => import('./home.vue');
+const home_cn = () => import('./home_cn.vue');
 
 const Title = '八嘎猪';
 

@@ -3,6 +3,7 @@
 - var keywords = locals.keywords
 - var description = locals.description
 - var min = locals.min
+- var cuid = locals.cuid
 - var shims = locals.shims
 
 doctype html
@@ -20,10 +21,10 @@ html(lang="zh-cn" xml:lang="zh-cn")
 		meta(name="apple-mobile-web-app-capable" content="yes")
 		meta(name="apple-touch-fullscreen" content="yes")
 		meta(name="format-detection" content="telephone=no,email=no")
-		link(rel="stylesheet" type="text/css" href=`./css/_common${min}.css`)
+		link(rel="stylesheet" type="text/css" href=`css/_common.${cuid}.css`)
 	body
 		#app
 			router-view
-		script(type="text/javascript" src=`./assets/vue/js/vue${min}.js`)
-		script(type="text/javascript" src=`./assets/vue-router/js/vue-router${min}.js`)
-		script(type="text/javascript" src=`./js/_common${min}.js`)
+		script(type="text/javascript" src=`assets/vue/js/vue${min}.js`)
+		script(type="text/javascript" src=`assets/vue-router/js/vue-router${min}.js`)
+		script(type="text/javascript" src=`js/_common.${cuid}.js`)

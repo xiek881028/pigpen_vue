@@ -1,19 +1,21 @@
 'use strict';
-const argv = require('yargs').argv;
 const path = require('path');
+const cuid = require('cuid');
 
 const pkg = require('./package.json');
 
 const webpack = require('webpack');
-const webpackBabelPlugin = require('babel-webpack-plugin');
-const webpackEs3ifyPlugin = require('es3ify-webpack-plugin-v2');
-const webpackExtractTextPlugin = require('extract-text-webpack-plugin');
-const webpackHtmlPlugin = require('html-webpack-plugin');
+const WebpackMiniCssExtractPlugin = require('mini-css-extract-plugin');
+const WebpackHtmlPlugin = require('html-webpack-plugin');
+const WebpackUglifyjsPlugin = require('uglifyjs-webpack-plugin');
+const WebpackOptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const WebpackVueLoaderPlugin = require('vue-loader/lib/plugin');
 
 class WebpackConfig {
-	constructor() {
-		this.prod = argv.optimizeMinimize;
+	constructor(env, argv) {
+		this.prod = argv.mode == 'production';
 		this.min = this.prod ? '.min' : '';
+		this.cuid = cuid();
 		return this.init();
 	}
 
@@ -25,6 +27,7 @@ class WebpackConfig {
 			resolve: this.resolve(),
 			externals: this.externals(),
 			plugins: this.plugins(),
+			optimization: this.optimization(),
 		};
 	}
 
@@ -37,8 +40,8 @@ class WebpackConfig {
 	output() {
 		return {
 			path: path.resolve(__dirname, 'dist/js'),
-			filename: `[name]${this.min}.js`,
-			chunkFilename: 'chunk[id].js',
+			filename: this.prod ? `[name].${this.cuid}.js` : `[name].js`,
+			chunkFilename: this.prod ? `chunk[id].${this.cuid}.js` : 'chunk[id].js',
 			publicPath: "js/",
 		};
 	}
@@ -48,28 +51,38 @@ class WebpackConfig {
 			rules: [
 				{
 					test: /\.pug$/,
-					use: ['pug-loader'],
+          oneOf: [
+            {
+              loader: 'pug-loader',
+              exclude: /\.vue.pug$/,
+              options: {
+                pretty: !this.prod,
+              },
+            },
+            {
+              loader: 'pug-plain-loader',
+            },
+          ],
 				},
 				{
 					test: /\.scss$/,
-					use: webpackExtractTextPlugin.extract({
-						fallback: 'style-loader',
-						use: [
-							'css-loader?sourceMap',
-					// 		//不需要CSS Sprite功能 解开下面注释 同时注释'postcss-loader?sourceMap'
-					// 		// {
-					// 		// 	loader: 'postcss-loader',
-					// 		// 	options: {
-					// 		// 		plugins: [
-					// 		// 			require('autoprefixer')(),
-					// 		// 		],
-					// 		// 		sourceMap: true,
-					// 		// 	},
-					// 		// },
-							'postcss-loader?sourceMap',
-							'sass-loader?sourceMap',
-						],
-					}),
+					use: [
+						WebpackMiniCssExtractPlugin.loader,
+						// 'style-loader',
+						'css-loader?sourceMap',
+						//不需要CSS Sprite功能 解开下面注释 同时注释'postcss-loader?sourceMap'
+						// {
+						// 	loader: 'postcss-loader',
+						// 	options: {
+						// 		plugins: [
+						// 			require('autoprefixer')(),
+						// 		],
+						// 		sourceMap: true,
+						// 	},
+						// },
+						'postcss-loader?sourceMap',
+						'sass-loader?sourceMap',
+					],
 				},
 				{
 					test: /\.js$/,
@@ -107,16 +120,9 @@ class WebpackConfig {
 							loader: 'vue-loader',
 							options: {
 								loaders: {
-									// scss: webpackExtractTextPlugin.extract({
-									// 	// fallback: 'vue-style-loader',
-									// 	use: [
-									// 		'css-loader?sourceMap',
-									// 		'postcss-loader?sourceMap',
-									// 		'sass-loader?sourceMap',
-									// 	],
-									// }),
-									use: [
-										'style-loader',
+									scss: [
+										WebpackMiniCssExtractPlugin.loader,
+										// 'vue-style-loader',
 										'css-loader?sourceMap',
 										'postcss-loader?sourceMap',
 										'sass-loader?sourceMap',
@@ -136,35 +142,40 @@ class WebpackConfig {
 
 	externals() {
 		return {
+      axios: 'axios',
 			vue: 'Vue',
 			vuex: 'Vuex',
 			json3: 'JSON3',
 		};
 	}
 
+	optimization() {
+		return {
+      minimizer: [
+        new WebpackUglifyjsPlugin({
+					parallel: 4,
+        }),
+        new WebpackOptimizeCSSAssetsPlugin({
+          cssProcessorOptions: {discardComments: {removeAll: true}},
+        }),
+      ],
+		};
+	}
+
 	plugins() {
 		let plugins = [
-			new webpack.DefinePlugin({'process.env': {NODE_ENV: `'${this.env}'`}}),
-			new webpackExtractTextPlugin(path.join('../css', `[name]${this.min}.css`)),
-			new webpackBabelPlugin(),
-			new webpackEs3ifyPlugin(),
+			new webpack.optimize.OccurrenceOrderPlugin(),
+			new WebpackVueLoaderPlugin(),
+			new WebpackMiniCssExtractPlugin({
+				chunkFilename: `../css/${this.prod ? `chunk[id].${this.cuid}.css` : `chunk[id].css`}`,
+				filename: `../css/${this.prod ? `[name].${this.cuid}.css` : `[name].css`}`,
+			}),
 		];
 
-		if(this.prod) {
-			plugins.push(new webpack.optimize.CommonsChunkPlugin({name: '_common', minChunks: 2}));
-			plugins.push(new webpack.optimize.UglifyJsPlugin({
-				comments: false,
-				compress: {
-					properties: false,
-					warnings: false,
-				},
-				sourceMap: true,
-			}));
-		}
-
-		plugins.push(new webpackHtmlPlugin({
+		plugins.push(new WebpackHtmlPlugin({
 			title: {
 				min: this.min,
+				cuid: this.cuid,
 				author: pkg.author,
 				keywords: pkg.keywords.join(', '),
 				description: pkg.description,
@@ -178,6 +189,6 @@ class WebpackConfig {
 	}
 }
 
-module.exports = () => {
-	return new WebpackConfig();
+module.exports = (env, argv) => {
+	return new WebpackConfig(env, argv);
 };
