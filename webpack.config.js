@@ -15,7 +15,7 @@ class WebpackConfig {
 	constructor(env, argv) {
 		this.prod = argv.mode == 'production';
 		this.min = this.prod ? '.min' : '';
-		this.cuid = cuid();
+		this.cuid = this.prod ? `.${cuid()}` : '';
 		return this.init();
 	}
 
@@ -40,8 +40,8 @@ class WebpackConfig {
 	output() {
 		return {
 			path: path.resolve(__dirname, 'dist/js'),
-			filename: this.prod ? `[name].${this.cuid}.js` : `[name].js`,
-			chunkFilename: this.prod ? `chunk[id].${this.cuid}.js` : 'chunk[id].js',
+			filename: this.prod ? `[name]${this.cuid}.js` : `[name].js`,
+			chunkFilename: this.prod ? `chunk[id]${this.cuid}.js` : 'chunk[id].js',
 			publicPath: "js/",
 		};
 	}
