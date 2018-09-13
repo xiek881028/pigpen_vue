@@ -116,21 +116,21 @@ if (argv.add) {
 <script>
 export default {
 
-components: {},
+  components: {},
 
-props: {},
+  props: {},
 
-data() {
-  return {};
-},
+  data() {
+    return {};
+  },
 
-computed: {},
+  computed: {},
 
-watch: {},
+  watch: {},
 
-methods: {},
+  methods: {},
 
-mounted() {},
+  mounted() {},
 }
 </script>
 
