@@ -15,18 +15,18 @@ table, caption, tbody, tfoot, thead, tr, th, td,
 article, aside, canvas, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section, summary,
 time, mark, audio, video {
-    margin:0;
-    padding:0;
-    border:0;
-    outline:0;
-    font-size:100%;
-    vertical-align:baseline;
-    background:transparent;
+  margin:0;
+  padding:0;
+  border:0;
+  outline:0;
+  font-size:100%;
+  vertical-align:baseline;
+  background:transparent;
 }
 
 body {
 	line-height:1;
-	font-family: YaHeiLight, MicrosoftYaHei, "微软雅黑";
+	font-family: YaHeiLight, MicrosoftYaHei, "微软雅黑", 微软雅黑;
 	font-size: 14px;
 }
 
@@ -36,38 +36,39 @@ body {
 
 article,aside,canvas,details,figcaption,figure,
 footer,header,hgroup,menu,nav,section,summary {
-    display:block;
+  display:block;
 }
 
 ul {
-    list-style:none;
+  list-style:none;
 }
 
 blockquote, q {
-    quotes:none;
+  quotes:none;
 }
 
 blockquote:before, blockquote:after,
 q:before, q:after {
-    content:'';
-    content:none;
+  content:'';
+  content:none;
 }
 
 a {
-    margin:0;
-    padding:0;
-    border:0;
-    font-size:100%;
-    vertical-align:baseline;
+  margin:0;
+  padding:0;
+  border:0;
+  font-size:100%;
+  vertical-align:baseline;
 	background:transparent;
 	text-decoration:none;
 }
 
 table {
-    border-collapse:collapse;
-    border-spacing:0;
+  border-collapse:collapse;
+  border-spacing:0;
 }
 
 input, select {
-    vertical-align:middle;
+  vertical-align:middle;
+	font-family: YaHeiLight, MicrosoftYaHei, "微软雅黑", 微软雅黑;
 }

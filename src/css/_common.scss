@@ -4,16 +4,16 @@
 * since: 0.0.1
 */
 
-@import 'reset';
-h1{
-	font-size: 28px;
-	text-align: center;
-	margin: 20px 0;
+// @import 'animate';
+@import 'config';
+
+html{
+  font-size: 12px;
 }
 
-i,a{
-	display: block;
-	text-align: center;
-	margin-bottom: 10px;
-	color: #fff;
+body, #app{
+	background-color: #d1d3cf;
+  font-family: $font-family;
+  font-size: $font-size-base;
+  color: $font-color;
 }

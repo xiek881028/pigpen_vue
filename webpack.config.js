@@ -1,194 +1,198 @@
+/*!
+ * Webpack config
+ * create: 2018/09/08
+ * since: 0.0.1
+ */
 'use strict';
+
+const fs = require('fs-extra');
 const path = require('path');
 const cuid = require('cuid');
-
+const webpack = require('webpack');
 const pkg = require('./package.json');
 
-const webpack = require('webpack');
 const WebpackMiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackHtmlPlugin = require('html-webpack-plugin');
-const WebpackUglifyjsPlugin = require('uglifyjs-webpack-plugin');
 const WebpackOptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const WebpackUglifyjsPlugin = require('uglifyjs-webpack-plugin');
 const WebpackVueLoaderPlugin = require('vue-loader/lib/plugin');
 
-class WebpackConfig {
-	constructor(env, argv) {
-		this.prod = argv.mode == 'production';
-		this.min = this.prod ? '.min' : '';
-		this.cuid = this.prod ? `.${cuid()}` : '';
-		return this.init();
-	}
+const out_base_path = 'dist';
+const in_base_path = 'src';
+const base_path = __dirname;
+const output_path = `${base_path}/${out_base_path}/js`;
 
-	init() {
-		return {
-			entry: this.entry(),
-			output: this.output(),
-			module: this.module(),
-			resolve: this.resolve(),
-			externals: this.externals(),
-			plugins: this.plugins(),
-			optimization: this.optimization(),
-		};
-	}
+function resolve(dir) {
+  return path.join(__dirname, '/', dir);
+}
 
-	entry() {
-		return {
-			_common: path.resolve(__dirname, 'src/js/_common.js')
-		};
-	}
+module.exports = (env, argv) => {
 
-	output() {
-		return {
-			path: path.resolve(__dirname, 'dist/js'),
-			filename: this.prod ? `[name]${this.cuid}.js` : `[name].js`,
-			chunkFilename: this.prod ? `chunk[id]${this.cuid}.js` : 'chunk[id].js',
-			publicPath: "js/",
-		};
-	}
+  this.prod = argv.mode == 'production';
+  this.min = this.prod ? '.min' : '';
+  this.cuid = cuid();
 
-	module() {
-		return {
-			rules: [
-				{
-					test: /\.pug$/,
+  let entries = {
+    _common: path.resolve(__dirname, 'src/js/common/app.js'),
+  };
+
+  return {
+    entry: entries,
+    output: {
+      path: output_path,
+      filename: this.prod ? `[name].${this.cuid}.js` : `[name].js`,
+      chunkFilename: this.prod ? `chunk[id].${this.cuid}.js` : 'chunk[id].js',
+      publicPath: "js/",
+    },
+    resolve: {
+      alias: {
+        '@': resolve('src'),
+        '@root': resolve('/'),
+      },
+    },
+    externals: {
+      axios: 'axios',
+      vue: 'Vue',
+      vuex: 'Vuex',
+      json3: 'JSON3',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.pug$/,
           oneOf: [
             {
               loader: 'pug-loader',
               exclude: /\.vue.pug$/,
               options: {
-                pretty: !this.prod,
+                pretty: false,
               },
             },
             {
               loader: 'pug-plain-loader',
             },
           ],
-				},
-				{
-					test: /\.scss$/,
-					use: [
-						WebpackMiniCssExtractPlugin.loader,
-						// 'style-loader',
-						'css-loader?sourceMap',
-						//不需要CSS Sprite功能 解开下面注释 同时注释'postcss-loader?sourceMap'
-						// {
-						// 	loader: 'postcss-loader',
-						// 	options: {
-						// 		plugins: [
-						// 			require('autoprefixer')(),
-						// 		],
-						// 		sourceMap: true,
-						// 	},
-						// },
-						'postcss-loader?sourceMap',
-						'sass-loader?sourceMap',
-					],
-				},
-				{
-					test: /\.js$/,
-					use: ['babel-loader'],
-					exclude: /node_modules/,
-				},
-				{
-					test: /\.(gif|jpe?g|png)(\?.*)?$/,
-					use: [
-						{
-							loader: 'url-loader',
-							options: {
-								limit: 8192,
-								name: '../images/[name].[ext]',
-							},
-						},
-					],
-				},
-				{
-					test: /\.(ttc|ttf|woff|eot|svg|woff2)(\?.*)?$/,
-					use: [
-						{
-							loader: 'url-loader',
-							options: {
-								limit: 8192,
-								name: '../font/[name].[ext]',
-							},
-						},
-					],
-				},
-				{
-					test: /\.vue$/,
-					use: [
-						{
-							loader: 'vue-loader',
-							options: {
-								loaders: {
-									scss: [
-										WebpackMiniCssExtractPlugin.loader,
-										// 'vue-style-loader',
-										'css-loader?sourceMap',
-										'postcss-loader?sourceMap',
-										'sass-loader?sourceMap',
-									]
-								},
-							},
-						},
-					],
-				},
-			],
-		};
-	}
-
-	resolve() {
-		return {};
-	}
-
-	externals() {
-		return {
-      axios: 'axios',
-			vue: 'Vue',
-			vuex: 'Vuex',
-			json3: 'JSON3',
-		};
-	}
-
-	optimization() {
-		return {
+        },
+        {
+          test: /\.css$/,
+          use: [
+            WebpackMiniCssExtractPlugin.loader,
+            'css-loader?sourceMap',
+            'postcss-loader?sourceMap',
+          ],
+        },
+        {
+          test: /\.scss$/,
+          use: [
+            WebpackMiniCssExtractPlugin.loader,
+            'css-loader?sourceMap',
+            'postcss-loader?sourceMap',
+            'sass-loader?sourceMap',
+          ],
+        },
+        {
+          test: /\.less$/,
+          use: [
+            WebpackMiniCssExtractPlugin.loader,
+            'css-loader?sourceMap',
+            'postcss-loader?sourceMap',
+            {loader: 'less-loader', options: {javascriptEnabled: true}},
+          ],
+        },
+        {
+          test: /\.js?$/,
+          use: ['babel-loader'],
+          exclude: /node_modules/,
+        },
+        {
+          test: /\.(gif|jpe?g|png)(\?.*)?$/,
+          use: [
+            {
+              loader: 'url-loader',
+              options: {
+                fallback: 'file-loader',
+                limit: 8192,
+                name: '../images/[name].[ext]',
+                publicPath: url => {
+                  return url;
+                }
+              },
+            },
+          ],
+        },
+        {
+          test: /\.(ttc|ttf|woff|eot|svg|woff2|otf)(\?.*)?$/,
+          use: [
+            {
+              loader: 'url-loader',
+              options: {
+                fallback: 'file-loader',
+                limit: 8192,
+                name: '../fonts/[name].[ext]',
+                publicPath: url => {
+                  return url;
+                }
+              },
+            },
+          ],
+        },
+        {
+          test: /\.vue$/,
+          use: [
+            {
+              loader: 'vue-loader',
+              options: {
+                loaders: {
+                  scss: [
+                    WebpackMiniCssExtractPlugin.loader,
+                    'css-loader?sourceMap',
+                    'postcss-loader?sourceMap',
+                    'sass-loader?sourceMap',
+                  ],
+                  less: [
+                    WebpackMiniCssExtractPlugin.loader,
+                    'css-loader?sourceMap',
+                    'postcss-loader?sourceMap',
+                    {loader: 'less-loader', options: {javascriptEnabled: true}},
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      ],
+    },
+    optimization: {
       minimizer: [
         new WebpackUglifyjsPlugin({
-					parallel: 4,
+          parallel: 4,
         }),
         new WebpackOptimizeCSSAssetsPlugin({
-          cssProcessorOptions: {discardComments: {removeAll: true}},
+          cssProcessorOptions: { discardComments: { removeAll: true } },
         }),
       ],
-		};
-	}
-
-	plugins() {
-		let plugins = [
-			new webpack.optimize.OccurrenceOrderPlugin(),
-			new WebpackVueLoaderPlugin(),
-			new WebpackMiniCssExtractPlugin({
-				chunkFilename: `../css/${this.prod ? `chunk[id].${this.cuid}.css` : `chunk[id].css`}`,
-				filename: `../css/${this.prod ? `[name].${this.cuid}.css` : `[name].css`}`,
-			}),
-		];
-
-		plugins.push(new WebpackHtmlPlugin({
-			title: {
-				min: this.min,
-				cuid: this.cuid,
-				author: pkg.author,
-				keywords: pkg.keywords.join(', '),
-				description: pkg.description,
-			},
-			template: path.resolve(__dirname, 'src/html/index.pug'),
-			filename: path.resolve(__dirname, 'dist', 'index.html'),
-			inject: false,
-		}));
-
-		return plugins;
-	}
+    },
+    plugins: [
+      new webpack.optimize.OccurrenceOrderPlugin(),
+      new WebpackVueLoaderPlugin(),
+      new WebpackMiniCssExtractPlugin({
+        chunkFilename: `../css/${this.prod ? `chunk[id].${this.cuid}.css` : `chunk[id].css`}`,
+        filename: `../css/${this.prod ? `[name].${this.cuid}.css` : `[name].css`}`,
+      }),
+    ].concat([
+      new WebpackHtmlPlugin({
+        title: {
+          min: this.min,
+          cuid: this.prod ? `.${this.cuid}` : '',
+          author: pkg.author,
+          keywords: pkg.keywords.join(', '),
+          description: pkg.description,
+        },
+        template: path.resolve(__dirname, 'src/html/index.pug'),
+        filename: path.resolve(__dirname, out_base_path, 'index.html'),
+        inject: false,
+      }),
+    ]
+    ),
+  };
 }
-
-module.exports = (env, argv) => {
-	return new WebpackConfig(env, argv);
-};

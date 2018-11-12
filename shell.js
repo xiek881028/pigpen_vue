@@ -9,8 +9,9 @@
 
 const path = require('path');
 const fs = require('fs-extra');
-const dateFormat = require('cainfoharbor-utils/dateFormat');
-const publicFn = require('./publicFn.js');
+const moment = require('moment');
+const publicFn = require('./public/index');
+const publicFn_node = require('./public/node');
 const argv = require('yargs').argv;
 
 /*
@@ -21,16 +22,18 @@ const argv = require('yargs').argv;
 	assets: 资源列表,可以为字符串或数组,内容可为文件或文件夹 required
 */
 const assets = {
-	vue: { assets: { js: ['dist/vue.min.js', 'dist/vue.js'] } },
-	'vue-router': { assets: { js: ['dist/vue-router.min.js', 'dist/vue-router.js'] } },
+  vue: { assets: { js: ['dist/vue.min.js', 'dist/vue.js'] } },
+  'vue-router': { assets: { js: ['dist/vue-router.min.js', 'dist/vue-router.js'] } },
   axios: { assets: { js: ['dist/axios.min.js', 'dist/axios.js'] } },
-	// vuex: { assets: { js: 'dist/vuex.min.js' } },
+  vuex: { assets: { js: ['dist/vuex.min.js', 'dist/vuex.js'] } },
 };
 
 /* release时需要忽略的dist中的文件或文件夹 */
 const shellignore = ['assets', 'images'];
 
-const today = dateFormat('yyyy-MM-dd', new Date());
+const outPath = 'dist';
+
+const today = moment().format('YYYY-MM-DD');
 
 if (argv.h) {
   console.log(``);
@@ -43,7 +46,7 @@ if (argv.h) {
 
 if (argv.init) {
   console.log(`开始导入 assets, 配置列表在shell.js顶部的assets变量`);
-  const distPath = path.resolve(__dirname, 'dist');
+  const distPath = path.resolve(__dirname, outPath);
   const assetsPath = path.resolve(distPath, 'assets');
 
   //dist不存在则创建
@@ -96,7 +99,7 @@ if (argv.add) {
   } else {
     argv.name.split(',').map(name => {
       let same = 0;
-      publicFn.fileTree(path.resolve(__dirname, 'src/html')).map(item => {
+      publicFn_node.fileTree(path.resolve(__dirname, 'src/html')).map(item => {
         if (name == path.parse(item).name) same = 1;
         return;
       });
@@ -148,7 +151,7 @@ if (argv.del) {
     console.error(`错误: 页面名称不能为空!`);
   } else {
     argv.name.split(',').map(name => {
-      publicFn.fileTree(path.resolve(__dirname, 'src/js/pages')).map(item => {
+      publicFn_node.fileTree(path.resolve(__dirname, 'src/js/pages')).map(item => {
         if (name == path.parse(item).name) {
           try {
             fs.removeSync(item);
@@ -165,7 +168,7 @@ if (argv.del) {
 
 if (argv.release) {
   let delPath = [];
-  removeItem(shellignore, path.resolve(__dirname, 'dist'));
+  removeItem(shellignore, path.resolve(__dirname, outPath));
 
   function removeItem(ignore, findPath) {
     // 当前层忽略的路径数组
@@ -195,9 +198,9 @@ if (argv.release) {
       }
     });
     // 需要进一步处理的文件路径数组
-    let sum = publicFn.mathArr(publicFn.fileTree(path.resolve(findPath), false), floorPathignore, 'sum');
+    let sum = publicFn.mathArr(publicFn_node.fileTree(path.resolve(findPath), false), floorPathignore, 'sum');
     // 一定会删除的文件路径数组
-    let diff = publicFn.mathArr(publicFn.fileTree(path.resolve(findPath), false), sum);
+    let diff = publicFn.mathArr(publicFn_node.fileTree(path.resolve(findPath), false), sum);
     //循环需要进一步处理的文件对象
     Object.keys(ignoreObj).map(item => {
       removeItem(ignoreObj[item], item);
