@@ -1,6 +1,6 @@
 # pigpen(vue)
 
-pigpen(vue)是一个轻量级前端单页应用架构。适用于层级关系较简单，页面量较少的小型项目。[bagazhu.com](http://www.bagazhu.com)基于此框架构建。
+pigpen(vue)是一个轻量级前端单页应用架构。
 
 您现在看到的为pigpen的vue版本，浏览器支持情况以vue为准。
 
@@ -27,7 +27,7 @@ cnpm i
 npm i
 
 # 框架初始化
-npm run shell -- --init
+npm run init
 
 # 页面编译
 npm start
@@ -52,19 +52,6 @@ npm run shell -- --add --name <页面名称>
 # 删除页面模块(同步删除pug、scss、js文件)
 npm run shell -- --del --name <页面名称>
 ```
-
-## 主要技术
-
-- [`node`](https://nodejs.org) 一个基于 Chrome V8 引擎的 JavaScript 运行环境
-- [`webpack`](http://webpack.github.io/) 一个现代JavaScript应用程序的模块打包器(module bundler)
-- [`pug`](https://pugjs.org) 一个用JavaScript实现的高性能的模板引擎
-- [`scss`](http://www.sasschina.com/) 成熟、稳定、强大的 CSS 扩展语言解析器
-- [`vue`](https://cn.vuejs.org/) 一套构建用户界面的渐进式框架
-- [`yargs`](https://www.npmjs.com/package/yargs) 一个用于处理命令行参数的node库
-
-## 感谢者
-
-[xiewulong](https://github.com/xiewulong)
 
 ## 许可证（License）
 
