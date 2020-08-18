@@ -9,7 +9,6 @@
 
 const path = require('path');
 const fs = require('fs-extra');
-const moment = require('moment');
 const publicFn = require('./public/index');
 const publicFn_node = require('./public/node');
 const argv = require('yargs').argv;
@@ -29,11 +28,9 @@ const assets = {
 };
 
 /* release时需要忽略的dist中的文件或文件夹 */
-const shellignore = ['assets', 'images'];
+const shellignore = ['assets', 'images', 'favicon.ico'];
 
 const outPath = 'dist';
-
-const today = moment().format('YYYY-MM-DD');
 
 if (argv.h) {
   console.log(``);
@@ -93,80 +90,8 @@ if (argv.init) {
   };
 }
 
-if (argv.add) {
-  if (!argv.name || !argv.name.length) {
-    console.error(`错误: 页面名称不能为空!`);
-  } else {
-    argv.name.split(',').map(name => {
-      let same = 0;
-      publicFn_node.fileTree(path.resolve(__dirname, 'src/html')).map(item => {
-        if (name == path.parse(item).name) same = 1;
-        return;
-      });
-      if (same) {
-        console.error(`错误: ${name} 页面已存在!`);
-      } else {
-        fs.outputFileSync(path.resolve(__dirname, 'src/js/pages', `${name}.vue`),
-          `/*!
-* ${name}
-* create: ${today}
-* since: 0.0.1
-*/
-
-<template lang="pug">
-</template>
-
-<script>
-export default {
-
-  components: {},
-
-  props: {},
-
-  data() {
-    return {};
-  },
-
-  computed: {},
-
-  watch: {},
-
-  methods: {},
-
-  mounted() {},
-}
-</script>
-
-<style lang="scss" scoped>
-</style>`
-        );
-        console.log(`${name}.vue 创建成功 `);
-      }
-    });
-  }
-}
-
-if (argv.del) {
-  if (!argv.name || !argv.name.length) {
-    console.error(`错误: 页面名称不能为空!`);
-  } else {
-    argv.name.split(',').map(name => {
-      publicFn_node.fileTree(path.resolve(__dirname, 'src/js/pages')).map(item => {
-        if (name == path.parse(item).name) {
-          try {
-            fs.removeSync(item);
-            console.log(`${path.parse(item).base} 删除成功`);
-          } catch (error) {
-            throw error;
-          }
-          return;
-        }
-      });
-    });
-  }
-}
-
 if (argv.release) {
+  fs.copySync(path.join(__dirname, 'favicon.ico'), path.join(__dirname, 'dist/favicon.ico'));
   let delPath = [];
   removeItem(shellignore, path.resolve(__dirname, outPath));
 

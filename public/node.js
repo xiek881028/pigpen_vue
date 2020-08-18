@@ -8,11 +8,11 @@
 const fs = require('fs-extra');
 const path = require('path');
 
-// 循环指定目录，输出目录内所有文件列表的数组
-// file 文件名或文件夹名
-// loop 是否循环遍历所有子目录
-module.exports.default = module.exports = {
-  fileTree(file, loop = true) {
+ module.exports = {
+  // 循环指定目录，输出目录内所有文件列表的数组
+  // file 文件名或文件夹名
+  // loop 是否循环遍历所有子目录
+  fileTree: function (file, loop = true) {
     let fileList = [];
     function walk(file) {
       //如果入参是文件，直接加入数组返回
@@ -32,5 +32,5 @@ module.exports.default = module.exports = {
     };
     walk(file);
     return fileList;
-  }
+  },
 }

@@ -6,12 +6,12 @@
 'use strict';
 
 // Css
-import '@/css/_reset.scss';
-import '@/css/_common.scss';
+import '@src/css/_reset.less';
+import '@src/css/_common.less';
 
 import Vue from 'vue';
 import Vuex from 'vuex';
-import store from '@/js/store';
+import store from '@src/js/store';
 import pages from '../pages';
 
 if(process.env.NODE_ENV === 'production'){

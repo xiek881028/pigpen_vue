@@ -1,4 +1,4 @@
-import axios from '@/js/common/axios';
+import axios from '@src/js/common/axios';
 
 // initial state
 const state = {

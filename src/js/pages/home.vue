@@ -20,7 +20,7 @@ export default{
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 h1{
 	color: #0ff;
 }

@@ -1,2 +1,14 @@
-node_modules
+# Dependency directories
+node_modules/
+
+# Visual Studio Code
+.vscode
+
+# Docker compose
 dist
+
+# yarn
+yarn.lock
+
+# package
+package-lock.json

@@ -14,7 +14,7 @@ module.exports = {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .rootBox{
 }
 </style>

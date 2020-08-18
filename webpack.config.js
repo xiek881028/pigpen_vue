@@ -5,11 +5,8 @@
  */
 'use strict';
 
-const fs = require('fs-extra');
 const path = require('path');
-const cuid = require('cuid');
 const webpack = require('webpack');
-const pkg = require('./package.json');
 
 const WebpackMiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackHtmlPlugin = require('html-webpack-plugin');
@@ -17,49 +14,78 @@ const WebpackOptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plug
 const WebpackUglifyjsPlugin = require('uglifyjs-webpack-plugin');
 const WebpackVueLoaderPlugin = require('vue-loader/lib/plugin');
 
-const out_base_path = 'dist';
-const in_base_path = 'src';
-const base_path = __dirname;
-const output_path = `${base_path}/${out_base_path}/js`;
-
 function resolve(dir) {
-  return path.join(__dirname, '/', dir);
+  return path.join(__dirname, dir);
 }
 
 module.exports = (env, argv) => {
 
   this.prod = argv.mode == 'production';
   this.min = this.prod ? '.min' : '';
-  this.cuid = cuid();
 
+  // vue单文件使用
   let entries = {
-    _common: path.resolve(__dirname, 'src/js/common/app.js'),
+    common: path.resolve(__dirname, 'src/js/common/app.js'),
   };
 
   return {
+    mode: argv.mode,
     entry: entries,
+    stats: {
+      // assets: false,
+      // moduleAssets: false,
+      // cached: false,
+      // cachedAssets: false,
+      children: false,
+      // chunks: false,
+      // chunkGroups: false,
+      // chunkModules: false,
+      // chunkRootModules: false,
+      // chunkOrigins: false,
+      // entrypoints: false,
+      // loggingTrace: false,
+      modules: false,
+      moduleTrace: false,
+      // performance: false,
+      // reasons: false,
+      colors: true,
+      // children: false,
+      // entrypoints: true,
+      // moduleAssets: false,
+      // chunks: false,
+      // chunkGroups: false,
+      // cachedAssets: false,
+      // reasons: false,
+      warningsFilter: [
+        // 忽略理由：https://github.com/webpack-contrib/mini-css-extract-plugin/issues/250
+        'Conflicting order between:',
+      ],
+    },
     output: {
-      path: output_path,
-      filename: this.prod ? `[name].${this.cuid}.js` : `[name].js`,
-      chunkFilename: this.prod ? `chunk[id].${this.cuid}.js` : 'chunk[id].js',
-      publicPath: "js/",
+      path: resolve('dist'),
+      // filename: '[name].js',
+      // vue单文件使用
+      filename: this.prod ? `js/[name].[chunkhash].min.js` : `js/[name].js`,
+      chunkFilename: this.prod ? `js/[name].chunk.[chunkhash].min.js` : 'js/[name].chunk.js',
+      publicPath: "/",
     },
     resolve: {
       alias: {
-        '@': resolve('src'),
+        '@src': resolve('src'),
         '@root': resolve('/'),
       },
     },
     externals: {
       axios: 'axios',
       vue: 'Vue',
-      vuex: 'Vuex',
-      json3: 'JSON3',
+      vueRouter: 'VueRouter',
     },
     module: {
       rules: [
         {
           test: /\.pug$/,
+          // use: ['pug-plain-loader'],
+          // vue单文件使用
           oneOf: [
             {
               loader: 'pug-loader',
@@ -82,27 +108,22 @@ module.exports = (env, argv) => {
           ],
         },
         {
-          test: /\.scss$/,
-          use: [
-            WebpackMiniCssExtractPlugin.loader,
-            'css-loader?sourceMap',
-            'postcss-loader?sourceMap',
-            'sass-loader?sourceMap',
-          ],
-        },
-        {
           test: /\.less$/,
           use: [
             WebpackMiniCssExtractPlugin.loader,
             'css-loader?sourceMap',
             'postcss-loader?sourceMap',
-            {loader: 'less-loader', options: {javascriptEnabled: true}},
+            {
+              loader: 'less-loader', options: {
+                lessOptions: { javascriptEnabled: true }
+              }
+            },
           ],
         },
         {
           test: /\.js?$/,
           use: ['babel-loader'],
-          exclude: /node_modules/,
+          // exclude: /node_modules/,
         },
         {
           test: /\.(gif|jpe?g|png)(\?.*)?$/,
@@ -112,10 +133,8 @@ module.exports = (env, argv) => {
               options: {
                 fallback: 'file-loader',
                 limit: 8192,
-                name: '../images/[name].[ext]',
-                publicPath: url => {
-                  return url;
-                }
+                outputPath: 'images/',
+                // name: '../images/[name].[ext]',
               },
             },
           ],
@@ -128,10 +147,11 @@ module.exports = (env, argv) => {
               options: {
                 fallback: 'file-loader',
                 limit: 8192,
-                name: '../fonts/[name].[ext]',
-                publicPath: url => {
-                  return url;
-                }
+                outputPath: 'fonts/',
+                // name: '../fonts/[name].[ext]',
+                // publicPath: url => {
+                //   return url;
+                // }
               },
             },
           ],
@@ -143,27 +163,29 @@ module.exports = (env, argv) => {
               loader: 'vue-loader',
               options: {
                 loaders: {
-                  scss: [
-                    WebpackMiniCssExtractPlugin.loader,
-                    'css-loader?sourceMap',
-                    'postcss-loader?sourceMap',
-                    'sass-loader?sourceMap',
-                  ],
                   less: [
                     WebpackMiniCssExtractPlugin.loader,
                     'css-loader?sourceMap',
                     'postcss-loader?sourceMap',
-                    {loader: 'less-loader', options: {javascriptEnabled: true}},
+                    { loader: 'less-loader', options: { javascriptEnabled: true } },
                   ],
                 },
               },
             },
+            // 集成iview所需
+            // {
+            //   loader: 'iview-loader',
+            //   options: {
+            //     prefix: false,
+            //   },
+            // },
           ],
         },
       ],
     },
     optimization: {
       minimizer: [
+        // vue单文件使用
         new WebpackUglifyjsPlugin({
           parallel: 4,
         }),
@@ -176,21 +198,14 @@ module.exports = (env, argv) => {
       new webpack.optimize.OccurrenceOrderPlugin(),
       new WebpackVueLoaderPlugin(),
       new WebpackMiniCssExtractPlugin({
-        chunkFilename: `../css/${this.prod ? `chunk[id].${this.cuid}.css` : `chunk[id].css`}`,
-        filename: `../css/${this.prod ? `[name].${this.cuid}.css` : `[name].css`}`,
+        chunkFilename: `css/${this.prod ? `[name].[contenthash].chunk.min.css` : `[name].chunk.css`}`,
+        filename: `css/${this.prod ? `[name].[contenthash].min.css` : `[name].css`}`,
       }),
     ].concat([
       new WebpackHtmlPlugin({
-        title: {
-          min: this.min,
-          cuid: this.prod ? `.${this.cuid}` : '',
-          author: pkg.author,
-          keywords: pkg.keywords.join(', '),
-          description: pkg.description,
-        },
-        template: path.resolve(__dirname, 'src/html/index.pug'),
-        filename: path.resolve(__dirname, out_base_path, 'index.html'),
-        inject: false,
+        template: resolve('src/html/index.pug'),
+        filename: 'index.html',
+        chunks: ['common'],
       }),
     ]
     ),
